@@ -1,84 +1,25 @@
 'use client'
 
-import { useState } from 'react'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
-import { useSessionContext } from '@supabase/auth-helpers-react'
+import { useEffect } from 'react'
 
-export default function LoginPage() {
-  const { supabaseClient } = useSessionContext()
+export default function RootPage() {
   const router = useRouter()
+  const supabase = createClientComponentClient()
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-
-    try {
-      const { error: loginError } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (loginError) throw loginError
-
-      router.push('/dashboard')
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      router.push(session ? '/dashboard' : '/login')
     }
-  }
+    
+    checkSession()
+  }, [router, supabase])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md p-8 bg-white shadow rounded">
-        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
-
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block mb-1 font-medium">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              className="w-full border px-3 py-2 rounded"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block mb-1 font-medium">
-              Senha
-            </label>
-            <input
-              id="password"
-              type="password"
-              className="w-full border px-3 py-2 rounded"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-          >
-            {loading ? 'Carregando...' : 'Entrar'}
-          </button>
-        </form>
-      </div>
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
     </div>
   )
 }
