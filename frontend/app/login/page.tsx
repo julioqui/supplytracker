@@ -1,22 +1,27 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useSessionContext } from '@supabase/auth-helpers-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Warehouse } from 'lucide-react'
+import { FcGoogle } from 'react-icons/fc'
 
 export default function LoginPage() {
   const { session, supabaseClient, isLoading } = useSessionContext()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const errorMsg = searchParams.get('error')
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(errorMsg)
+
+  const baseUrl = process.env.NEXT_PUBLIC_URL
 
   // Redirect if already logged in
   useEffect(() => {
@@ -37,7 +42,6 @@ export default function LoginPage() {
       })
 
       if (loginError) throw loginError
-
       router.push('/dashboard')
     } catch (err: any) {
       setError(err.message)
@@ -86,15 +90,42 @@ export default function LoginPage() {
               />
             </div>
 
-            {error && <p className="text-red-500 text-sm">Login ou senha inválidos</p>}
+            {error === 'Invalid login credentials' && <p className="text-red-500 text-sm text-center">Login ou senha inválidos</p>}
 
-            <Button
-              type="submit"
-              className="w-full bg-purple-600 hover:bg-purple-700 transition"
-              disabled={loading}
-            >
-              {loading ? 'Entrando...' : 'Entrar'}
-            </Button>
+            <div className="space-y-3">
+              <Button
+                type="submit"
+                className="w-full bg-purple-600 hover:bg-purple-700 transition"
+                disabled={loading}
+              >
+                {loading ? 'Entrando...' : 'Entrar'}
+              </Button>
+
+              <div className="flex items-center">
+                <div className="flex-grow h-px bg-gray-300"></div>
+                <span className="px-3 text-sm text-gray-500">ou</span>
+                <div className="flex-grow h-px bg-gray-300"></div>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2 border-gray-300"
+                onClick={() =>
+                  supabaseClient.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                      redirectTo: `${baseUrl}/auth/callback`,
+                    },
+                  })
+                }
+              >
+                <FcGoogle className="w-5 h-5" />
+                Fazer login com o Google
+              </Button>
+            </div>
+
+            {error === 'access_denied' && <p className="text-red-500 text-sm text-center">Acesso negado. Entre em contato com o administrador.</p>}
           </form>
         </CardContent>
       </Card>
