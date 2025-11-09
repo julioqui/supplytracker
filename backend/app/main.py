@@ -1,13 +1,12 @@
 from fastapi import FastAPI
 from app.api.v1.users.routes import router as users_router
-from app.api.v1.auth.routes import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="SupplyTracker API")
 
 # CORS
 origins = [
-    "http://localhost:3000",  # frontend
+    "http://127.0.0.1:3000",  # frontend
 ]
 
 app.add_middleware(
@@ -19,7 +18,6 @@ app.add_middleware(
 )
 
 # Routes
-app.include_router(auth_router, prefix="/api/v1/auth")
 app.include_router(users_router, prefix="/api/v1/users")
 
 @app.get("/health")
