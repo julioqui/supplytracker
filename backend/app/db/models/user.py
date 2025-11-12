@@ -39,11 +39,9 @@ class Role(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    tenant = relationship("Tenant", back_populates="roles")
     users = relationship("User", secondary="user_roles", back_populates="roles")
 
 
