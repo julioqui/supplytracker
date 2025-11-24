@@ -93,6 +93,8 @@ export default function SuppliesPage() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [supplyToDelete, setSupplyToDelete] = useState<string | null>(null)
   const [editingSupply, setEditingSupply] = useState<Supply | null>(null)
   const [formData, setFormData] = useState({
     name: '',
@@ -120,15 +122,20 @@ export default function SuppliesPage() {
     fetchSupplies()
   }, [])
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Tem certeza que deseja excluir este insumo?')) {
-      try {
-        await deleteSupply(id)
-        setSupplies(supplies.filter(supply => supply.id !== id))
-      } catch (error) {
-        console.error('Failed to delete supply:', error)
-        // Handle error
-      }
+  const handleDeleteClick = (id: string) => {
+    setSupplyToDelete(id)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!supplyToDelete) return
+    
+    try {
+      await deleteSupply(supplyToDelete)
+      setSupplies(supplies.filter(supply => supply.id !== supplyToDelete))
+      setDeleteDialogOpen(false)
+    } catch (error) {
+      console.error('Failed to delete supply:', error)
     }
   }
 
@@ -276,7 +283,7 @@ export default function SuppliesPage() {
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        onClick={() => handleDelete(supply.id)}
+                        onClick={() => handleDeleteClick(supply.id)}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
@@ -404,6 +411,39 @@ export default function SuppliesPage() {
                   </Button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteDialogOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Confirmar Exclusão</h2>
+              
+              <div className="space-y-6">
+                <p className="text-gray-600">
+                  Tem certeza que deseja excluir este insumo? Esta ação não pode ser desfeita.
+                </p>
+                
+                <div className="flex justify-end space-x-3 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setDeleteDialogOpen(false)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant="destructive"
+                    onClick={handleConfirmDelete}
+                  >
+                    Excluir
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
