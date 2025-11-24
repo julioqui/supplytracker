@@ -212,8 +212,7 @@ def test_delete_supply_not_found(client, valid_token):
     assert response.status_code == 404
 
 def test_create_supply_no_token(client):
-    with pytest.raises(HTTPException) as exc_info:
-        client.post(
+    response = client.post(
             "/api/v1/supplies/",
             json={
                 "name": "Test",
@@ -223,4 +222,4 @@ def test_create_supply_no_token(client):
                 "min_stock": 1
             }
         )
-    assert exc_info.value.status_code == 401
+    assert response.status_code == 401
