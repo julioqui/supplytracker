@@ -3,9 +3,9 @@ INSERT INTO tenants (id, name, domain) VALUES
 ('11111111-1111-1111-1111-111111111111', 'test-tenant', 'test.local');
 
 -- 2️⃣ Roles (com tenant_id)
-INSERT INTO roles (id, name, tenant_id, created_at) VALUES 
-(1, 'admin', '11111111-1111-1111-1111-111111111111', now()),
-(2, 'user',  '11111111-1111-1111-1111-111111111111', now());
+INSERT INTO roles (id, name, created_at) VALUES 
+(1, 'admin', now()),
+(2, 'user',  now());
 
 -- 3️⃣ Users (com tenant_id)
 INSERT INTO users (id, email, tenant_id, is_active, created_at) VALUES
