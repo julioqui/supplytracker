@@ -78,7 +78,7 @@ def invalid_token():
 # -------------------------------
 def test_get_current_user(client, supabase_test_user):
     headers = {"Authorization": f"Bearer {supabase_test_user['token']}"}
-    response = client.get("/api/v1/users/me", headers=headers)
+    response = client.get("/api/v1/auth/me", headers=headers)
     assert response.status_code == 200
     data = response.json()
     assert data["email"] == supabase_test_user["user"].email
@@ -88,13 +88,13 @@ from fastapi import HTTPException
 def test_get_current_user_expired(client, expired_token):
     headers = {"Authorization": f"Bearer {expired_token}"}
     with pytest.raises(HTTPException) as exc_info:
-        client.get("/api/v1/users/me", headers=headers)
+        client.get("/api/v1/auth/me", headers=headers)
     assert exc_info.value.status_code == 401
     assert exc_info.value.detail == "Token expired"
 
 def test_get_current_user_invalid(client, invalid_token):
     headers = {"Authorization": f"Bearer {invalid_token}"}
     with pytest.raises(HTTPException) as exc_info:
-        client.get("/api/v1/users/me", headers=headers)
+        client.get("/api/v1/auth/me", headers=headers)
     assert exc_info.value.status_code == 401
     assert exc_info.value.detail == "Invalid token"
