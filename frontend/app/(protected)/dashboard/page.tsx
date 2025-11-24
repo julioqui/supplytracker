@@ -30,7 +30,7 @@ export default function DashboardPage() {
         setError(null)
 
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
             headers: {
               Authorization: `Bearer ${session.access_token}`,
               'Content-Type': 'application/json',
