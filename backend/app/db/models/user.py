@@ -17,7 +17,6 @@ class Tenant(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     users = relationship("User", back_populates="tenant", cascade="all, delete-orphan")
-    roles = relationship("Role", back_populates="tenant", cascade="all, delete-orphan")
 
 
 class User(Base):
