@@ -3,7 +3,7 @@ from fastapi.routing import APIRoute
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.api.v1.auth.dependencies import get_current_user
 
-EXCLUDE_PATHS = ["/auth", "/auth/", "/docs", "/openapi.json", "/public"]  # add any routes that don't need auth
+EXCLUDE_PATHS = ["/auth", "/auth/", "/docs", "/openapi.json", "/public"]
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -12,11 +12,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
             if request.url.path.startswith(path):
                 return await call_next(request)
 
-        # Check token using your existing get_current_user
+        # Check token
         try:
             await get_current_user(request)
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
 
-        response = await call_next(request)
-        return response
+        return await call_next(request)
