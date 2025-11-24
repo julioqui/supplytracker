@@ -20,7 +20,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!isLoading && !session) {
-      router.push('/')  // redireciona se não logado
+      router.push('/') // Redirect to login if not logged in
       return
     }
 
