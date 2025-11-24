@@ -4,10 +4,18 @@ from jose import jwt
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer
 
+# Validate environment
+if not hasattr(settings, 'APP_ENV') or settings.APP_ENV not in ["development", "production", "staging"]:
+    raise ValueError(
+        "Invalid or missing APP_ENV value. "
+        "Must be one of: development, production, staging. "
+        f"Current value: {getattr(settings, 'APP_ENV', 'not set')}"
+    )
+
 security = HTTPBearer()
 
 SUPABASE_URL = settings.SUPABASE_URL
-SUPABASE_JWT_SECRET = settings.SUPABASE_JWT_SECRET  # HS256 secret
+SUPABASE_JWT_SECRET = settings.SUPABASE_JWT_SECRET
 SUPABASE_JWKS_URL = f"{SUPABASE_URL}/auth/v1/keys"
 
 _jwks_cache = None
@@ -35,15 +43,16 @@ def verify_supabase_jwt(token: str):
     except Exception as e:
         print("RS256 verification failed:", e)
 
-    # Attempt HS256
-    try:
-        payload = jwt.decode(token, SUPABASE_JWT_SECRET, algorithms=["HS256"], audience="authenticated")
-        return payload
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
-    except jwt.JWTError as e:
-        print("HS256 JWT decode error:", e)
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    # Attempt HS256 for local development testing
+    if settings.APP_ENV == "development":
+        try:
+            payload = jwt.decode(token, SUPABASE_JWT_SECRET, algorithms=["HS256"], audience="authenticated")
+            return payload
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
+        except jwt.JWTError as e:
+            print("HS256 JWT decode error:", e)
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 async def get_current_user(request: Request):
     auth_header = request.headers.get("Authorization")
@@ -60,7 +69,8 @@ async def get_current_user(request: Request):
             if e.detail != "Invalid token":
                 raise
             
-            # If RS256 fails, try HS256 with the JWT secret
+        # Attempt HS256 for local development testing
+        if settings.APP_ENV == "development":
             payload = jwt.decode(
                 token, 
                 settings.SUPABASE_JWT_SECRET, 
