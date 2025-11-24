@@ -23,17 +23,8 @@ class SupplyBase(BaseModel):
             raise ValueError("cost_per_unit cannot be negative")
         return v
 
-    # ✔ Pydantic v2-compliant cross-field validation
-    @model_validator(mode="after")
-    def validate_min_stock(self):
-        if self.min_stock > self.stock_quantity:
-            raise ValueError("min_stock cannot exceed stock_quantity")
-        return self
-
-
 class SupplyCreate(SupplyBase):
     pass
-
 
 class SupplyUpdate(BaseModel):
     name: Optional[str] = None
@@ -54,18 +45,6 @@ class SupplyUpdate(BaseModel):
         if v is not None and v < 0:
             raise ValueError("cost_per_unit cannot be negative")
         return v
-
-    # ✔ Cross-field validation for update inputs
-    @model_validator(mode="after")
-    def validate_min_stock(self):
-        if (
-            self.min_stock is not None and
-            self.stock_quantity is not None and
-            self.min_stock > self.stock_quantity
-        ):
-            raise ValueError("min_stock cannot exceed stock_quantity")
-        return self
-
 
 class SupplyResponse(SupplyBase):
     id: UUID

@@ -142,22 +142,6 @@ def test_create_supply_negative_stock(client, valid_token):
     )
     assert response.status_code == 422
 
-def test_create_supply_min_stock_greater_than_stock(client, valid_token):
-    headers = {"Authorization": f"Bearer {valid_token}"}
-
-    response = client.post(
-        "/api/v1/supplies/",
-        json={
-            "name": "Flour",
-            "unit": "kg",
-            "cost_per_unit": 3.50,
-            "stock_quantity": 2,
-            "min_stock": 10,
-        },
-        headers=headers
-    )
-    assert response.status_code in (400, 422)
-
 def test_get_supply_invalid_uuid(client, valid_token):
     headers = {"Authorization": f"Bearer {valid_token}"}
 
