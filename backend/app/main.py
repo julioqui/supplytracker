@@ -1,21 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import api_router
-from app.middleware.auth import AuthMiddleware  # <-- import your middleware
+from app.middleware.auth import AuthMiddleware
+from app.core.config import settings 
 
 app = FastAPI(title="SupplyTracker API")
 
 # CORS
-origins = [
-    "http://127.0.0.1:3000",  # frontend
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,  # permite Authorization header
-    allow_methods=["*"],     # GET, POST, OPTIONS, etc
-    allow_headers=["*"],     # Authorization, Content-Type, etc
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
+    allow_methods=settings.CORS_METHODS,
+    allow_headers=settings.CORS_HEADERS,
 )
 
 # Add auth middleware
