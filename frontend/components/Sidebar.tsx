@@ -9,6 +9,7 @@ type SidebarProps = {
 export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'supplies', label: 'Insumos', icon: ShoppingBasket },
   ];
 
   return (
@@ -33,7 +34,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors font-medium ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors font-medium cursor-pointer ${
                 isActive
                   ? 'bg-purple-50 text-purple-700'
                   : 'text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500'
