@@ -1,6 +1,7 @@
 from fastapi import FastAPI
-from app.api.v1.users.routes import router as users_router
 from fastapi.middleware.cors import CORSMiddleware
+from app.api import api_router
+from app.middleware.auth import AuthMiddleware  # <-- import your middleware
 
 app = FastAPI(title="SupplyTracker API")
 
@@ -17,8 +18,11 @@ app.add_middleware(
     allow_headers=["*"],     # Authorization, Content-Type, etc
 )
 
-# Routes
-app.include_router(users_router, prefix="/api/v1/users")
+# Add auth middleware
+app.add_middleware(AuthMiddleware)
+
+# API routes
+app.include_router(api_router, prefix="/api/v1")
 
 @app.get("/health")
 def healthcheck():
